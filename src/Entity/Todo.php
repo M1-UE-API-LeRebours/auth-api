@@ -3,7 +3,12 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Repository\TodoRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -12,7 +17,29 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ApiResource(
     operations:[
         new GetCollection(
-            normalizationContext: ["groups" => ["todo:read"]],
+            normalizationContext: ["groups" => ["todos:read"]],
+            security: "is_authenticated()"
+        ),
+        new Get(
+            normalizationContext: ["groups" => ["todos:read"]],
+            security: "is_authenticated()"
+        ),
+        new Post(
+            normalizationContext: ["groups" => ["todos:read"]],
+            denormalizationContext: ["groups" => ["todos:write"]],
+            security: "is_authenticated()"
+        ),
+        new Put(
+            normalizationContext: ["groups" => ["todos:read"]],
+            denormalizationContext: ["groups" => ["todos:write"]],
+            security: "is_authenticated()"
+        ),
+        new Patch(
+            normalizationContext: ["groups" => ["todos:read"]],
+            denormalizationContext: ["groups" => ["todos:write"]],
+            security: "is_authenticated()"
+        ),
+        new Delete(
             security: "is_authenticated()"
         )
     ]
@@ -22,20 +49,20 @@ class Todo
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['todo:read'])]
+    #[Groups(['todos:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['todo:read'])]
+    #[Groups(['todos:read', 'todos:write'])]
     private ?string $label = null;
 
     #[ORM\Column]
-    #[Groups(['todo:read'])]
-    private ?bool $isDone = null;
+    #[Groups(['todos:read','todos:write'])]
+    private ?bool $done = null;
 
     #[ORM\ManyToOne(inversedBy: 'todos')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['todo:read'])]
+    //#[Groups(['todos:read'])]
     private ?User $user = null;
 
     public function getId(): ?int
@@ -55,14 +82,14 @@ class Todo
         return $this;
     }
 
-    public function isDone(): ?bool
+    public function getDone(): ?bool
     {
-        return $this->isDone;
+        return $this->done;
     }
 
-    public function setDone(bool $isDone): static
+    public function setDone(bool $done): static
     {
-        $this->isDone = $isDone;
+        $this->done = $done;
 
         return $this;
     }

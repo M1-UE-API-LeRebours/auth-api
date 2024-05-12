@@ -5,6 +5,9 @@ api_platform:
     show_webby: false
     formats:
         jsonld: ['application/ld+json']
+        json: ['application/json']
+    patch_formats:
+        json: [ 'application/merge-patch+json', 'application/json']
     docs_formats:
         jsonld: ['application/ld+json']
         jsonopenapi: ['application/vnd.openapi+json']
