@@ -2,9 +2,12 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Todo;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Faker\Factory;
+use Faker\Generator;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
@@ -19,7 +22,10 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
+        $faker = Factory::create();
+
         $this->loadUsers($manager);
+        $this->loadTodos($manager, $faker);
     }
 
     private function loadUsers(ObjectManager $manager): void
@@ -36,8 +42,22 @@ class AppFixtures extends Fixture
             $manager->persist($user);
         }
 
-
         $manager->flush();
 
+    }
+
+    private function loadTodos(ObjectManager $manager, Generator $faker): void
+    {
+        $users = $manager->getRepository(User::class)->findAll();
+
+        for ($i = 0; $i < 10; $i++) {
+            $todo = new Todo();
+            $todo->setLabel($faker->sentence)
+                ->setDone($faker->boolean)
+                ->setUser($faker->randomElement($users));
+            $manager->persist($todo);
+        }
+
+        $manager->flush();
     }
 }

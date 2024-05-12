@@ -2,13 +2,17 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[ApiResource]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -30,6 +34,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     private ?string $password = null;
+
+    /**
+     * @var Collection<int, Todo>
+     */
+    #[ORM\OneToMany(targetEntity: Todo::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $todos;
+
+    public function __construct()
+    {
+        $this->todos = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -104,5 +119,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    /**
+     * @return Collection<int, Todo>
+     */
+    public function getTodos(): Collection
+    {
+        return $this->todos;
+    }
+
+    public function addTodo(Todo $todo): static
+    {
+        if (!$this->todos->contains($todo)) {
+            $this->todos->add($todo);
+            $todo->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTodo(Todo $todo): static
+    {
+        if ($this->todos->removeElement($todo)) {
+            // set the owning side to null (unless already changed)
+            if ($todo->getUser() === $this) {
+                $todo->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }
