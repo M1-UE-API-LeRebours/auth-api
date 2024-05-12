@@ -7,3 +7,7 @@ controllers:
 authentication_token:
     path: /authentication_token
     methods: ['POST']
+
+authentication_refresh_token:
+    path: /authentication_refresh_token
+    methods: ['POST']
