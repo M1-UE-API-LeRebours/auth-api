@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Repository\TodoRepository;
+use App\State\CreateTodoProcessor;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 
@@ -27,7 +28,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
         new Post(
             normalizationContext: ["groups" => ["todos:read"]],
             denormalizationContext: ["groups" => ["todos:write"]],
-            security: "is_authenticated()"
+            security: "is_authenticated()",
+            processor: CreateTodoProcessor::class
         ),
         new Put(
             normalizationContext: ["groups" => ["todos:read"]],
@@ -58,7 +60,7 @@ class Todo
 
     #[ORM\Column]
     #[Groups(['todos:read','todos:write'])]
-    private ?bool $done = null;
+    private ?bool $done = false;
 
     #[ORM\ManyToOne(inversedBy: 'todos')]
     #[ORM\JoinColumn(nullable: false)]
