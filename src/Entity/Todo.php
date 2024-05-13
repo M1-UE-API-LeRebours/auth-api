@@ -13,6 +13,7 @@ use App\Repository\TodoRepository;
 use App\State\CreateTodoProcessor;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TodoRepository::class)]
 #[ApiResource(
@@ -56,10 +57,16 @@ class Todo
 
     #[ORM\Column(length: 255)]
     #[Groups(['todos:read', 'todos:write'])]
+    #[Assert\NotBlank]
+    #[Assert\NotNull]
+    #[Assert\Length(min: 3, max: 255)]
+    #[Assert\Type(type: 'string')]
     private ?string $label = null;
 
     #[ORM\Column]
     #[Groups(['todos:read','todos:write'])]
+    #[Assert\NotNull]
+    #[Assert\Type(type: 'boolean')]
     private ?bool $done = false;
 
     #[ORM\ManyToOne(inversedBy: 'todos')]
